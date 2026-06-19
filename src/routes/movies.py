@@ -56,7 +56,6 @@ async def get_movies(
 # --- Task 2: Movie Creation Endpoint ---
 @router.post("/", response_model=MovieDetailResponse, status_code=status.HTTP_201_CREATED)
 async def create_movie(movie_data: MovieCreateRequest, db: AsyncSession = Depends(get_db)):
-    # Duplicate check
     existing_movie = await db.execute(
         select(MovieModel).where(MovieModel.name == movie_data.name, MovieModel.date == movie_data.date)
     )
@@ -66,14 +65,12 @@ async def create_movie(movie_data: MovieCreateRequest, db: AsyncSession = Depend
             detail=f"A movie with the name '{movie_data.name}' and release date '{movie_data.date}' already exists."
         )
 
-    # Link or create country
     country_res = await db.execute(select(CountryModel).where(CountryModel.code == movie_data.country))
     country = country_res.scalars().first()
     if not country:
         country = CountryModel(code=movie_data.country, name=None)
         db.add(country)
 
-    # Link or create related entities
     async def get_or_create(model, names_list):
         items = []
         for name in names_list:
@@ -89,7 +86,6 @@ async def create_movie(movie_data: MovieCreateRequest, db: AsyncSession = Depend
     actors = await get_or_create(ActorModel, movie_data.actors)
     languages = await get_or_create(LanguageModel, movie_data.languages)
 
-    # Create new movie
     new_movie = MovieModel(
         name=movie_data.name,
         date=movie_data.date,

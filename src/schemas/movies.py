@@ -1,6 +1,7 @@
 from datetime import date, timedelta
-from typing import List, Optional
+from typing import List, Optional, Literal
 from pydantic import BaseModel, Field, field_validator, ConfigDict
+
 
 # --- Base Entity Schemas ---
 
@@ -10,12 +11,14 @@ class EntityBase(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
 class CountrySchema(BaseModel):
     id: int
     code: str
     name: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
+
 
 # --- Task 1: List Endpoint Schemas ---
 
@@ -28,12 +31,14 @@ class MovieShort(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
 class MovieListResponse(BaseModel):
     movies: List[MovieShort]
     prev_page: Optional[str]
     next_page: Optional[str]
     total_pages: int
     total_items: int
+
 
 # --- Task 2: Create Endpoint Schemas ---
 
@@ -42,10 +47,10 @@ class MovieCreateRequest(BaseModel):
     date: date
     score: float = Field(..., ge=0, le=100)
     overview: str
-    status: str
+    status: Literal["Released", "Post Production", "In Production"]
     budget: float = Field(..., ge=0)
     revenue: float = Field(..., ge=0)
-    country: str  # ISO 3166-1 alpha-3 code
+    country: str
     genres: List[str]
     actors: List[str]
     languages: List[str]
@@ -55,6 +60,7 @@ class MovieCreateRequest(BaseModel):
         if v > date.today() + timedelta(days=365):
             raise ValueError("Date cannot be more than one year in the future.")
         return v
+
 
 # --- Task 3: Details Endpoint Schemas ---
 
@@ -74,6 +80,7 @@ class MovieDetailResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
 # --- Task 5: Update Endpoint Schemas ---
 
 class MovieUpdateRequest(BaseModel):
@@ -81,6 +88,6 @@ class MovieUpdateRequest(BaseModel):
     date: Optional[date] = None
     score: Optional[float] = Field(None, ge=0, le=100)
     overview: Optional[str] = None
-    status: Optional[str] = None
+    status: Optional[Literal["Released", "Post Production", "In Production"]] = None
     budget: Optional[float] = Field(None, ge=0)
     revenue: Optional[float] = Field(None, ge=0)
