@@ -50,7 +50,13 @@ class MovieCreateRequest(BaseModel):
     status: Literal["Released", "Post Production", "In Production"]
     budget: float = Field(..., ge=0)
     revenue: float = Field(..., ge=0)
-    country: str
+    country: str = Field(
+        ...,
+        min_length=3,
+        max_length=3,
+        pattern="^[A-Z]{3}$",
+        description="3-letter uppercase ISO country code"
+    )
     genres: List[str]
     actors: List[str]
     languages: List[str]
