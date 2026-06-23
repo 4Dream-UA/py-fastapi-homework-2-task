@@ -52,10 +52,10 @@ class MovieCreateRequest(BaseModel):
     revenue: float = Field(..., ge=0)
     country: str = Field(
         ...,
-        min_length=3,
+        min_length=2,
         max_length=3,
-        pattern="^[A-Z]{3}$",
-        description="3-letter uppercase ISO country code"
+        pattern="^[A-Z]{2,3}$",
+        description="2 or 3-letter uppercase ISO country code"
     )
     genres: List[str]
     actors: List[str]

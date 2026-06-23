@@ -102,9 +102,17 @@ async def create_movie(movie_data: MovieCreateRequest, db: AsyncSession = Depend
 
     db.add(new_movie)
     await db.commit()
-    await db.refresh(new_movie)
 
-    return new_movie
+    query = select(MovieModel).where(MovieModel.id == new_movie.id).options(
+        selectinload(MovieModel.country),
+        selectinload(MovieModel.genres),
+        selectinload(MovieModel.actors),
+        selectinload(MovieModel.languages)
+    )
+    result = await db.execute(query)
+    movie_with_relations = result.scalars().first()
+
+    return movie_with_relations
 
 
 # --- Task 3: Movie Details Endpoint ---
